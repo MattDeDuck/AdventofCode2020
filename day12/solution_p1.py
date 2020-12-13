@@ -2,70 +2,30 @@ with open('input12.txt') as file:
 	data = file.readlines()
 	data = [ line.strip() for line in data ]
 
-def change_dir(command, current_direction, dist):
-	if(command == 'L'):
-		if(current_direction == 'North'):
-			if(dist == 90): return 'West'
-			if(dist == 180): return 'South'
-			if(dist == 270): return 'East'
-		if(current_direction == 'East'):
-			if(dist == 90): return 'North'
-			if(dist == 180): return 'West'
-			if(dist == 270): return 'South'
-		if(current_direction == 'South'):
-			if(dist == 90): return 'East'
-			if(dist == 180): return 'North'
-			if(dist == 270): return 'West'
-		if(current_direction == 'West'):
-			if(dist == 90): return 'South'
-			if(dist == 180): return 'East'
-			if(dist == 270): return 'North'
-	if(command == 'R'):
-		if(current_direction == 'North'):
-			if(dist == 90): return 'East'
-			if(dist == 180): return 'South'
-			if(dist == 270): return 'West'
-		if(current_direction == 'East'):
-			if(dist == 90): return 'South'
-			if(dist == 180): return 'West'
-			if(dist == 270): return 'North'
-		if(current_direction == 'South'):
-			if(dist == 90): return 'West'
-			if(dist == 180): return 'North'
-			if(dist == 270): return 'East'
-		if(current_direction == 'West'):
-			if(dist == 90): return 'North'
-			if(dist == 180): return 'East'
-			if(dist == 270): return 'South'
+nav = [ 'N', 'E', 'S', 'W' ]
 
-def get_distance():
+def change_dir(facing,command,value):	
+	f = nav.index(facing)
+	if(command == 'R'):	f += value // 90
+	if(command == 'L'): f -= value // 90
+	f = f % 4
+	return nav[f]
+
+def get_ship_location():
 	x, y = 0, 0
-	f = 'East'
-	li = 0
+	face = 'E'
 
 	for line in data:
-		cmd = line[:1]
-		dist = int(line[1:])
-				
-		if(cmd == 'L' or cmd == 'R'):
-			f = change_dir(cmd,f,dist)
-
-		if(cmd != 'R' or cmd != 'L'):
-			if(cmd == 'N'): y += dist
-			if(cmd == 'E'):	x += dist
-			if(cmd == 'S'):	y -= dist
-			if(cmd == 'W'):	x -= dist
-			
-			if(cmd == 'F'):
-				if(f == 'North'): y += int(dist)
-				if(f == 'East'): x += int(dist)
-				if(f == 'South'): y -= int(dist)
-				if(f == 'West'): x -= int(dist)
+		cmd, num = line[:1], int(line[1:])
 		
-	return (x,y), f
+		if(cmd == 'N') or (cmd == 'F' and face == 'N'): y += num
+		elif(cmd == 'E') or (cmd == 'F' and face == 'E'): x += num
+		elif(cmd == 'S') or (cmd == 'F' and face == 'S'): y -= num
+		elif(cmd == 'W') or (cmd == 'F' and face == 'W'): x -= num
 
-ship,facing = get_distance()
+		if(cmd == 'L' or cmd == 'R'):
+			face = change_dir(face,cmd,num)
 
-print(ship,facing)
+	return abs(x) + abs(y)
 
-print(f"Part 1: {abs(ship[0]) + abs(ship[1])}")
+print(f"Part 1: {get_ship_location()}")
